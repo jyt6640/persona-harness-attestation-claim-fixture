@@ -1,4 +1,4 @@
-name: Research build attestation fixture
+name: Research project finish attestation caller
 
 on:
   push:
@@ -9,51 +9,8 @@ permissions:
   contents: read
   id-token: write
   attestations: write
+  artifact-metadata: write
 
 jobs:
-  build-and-attest:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-
-      - name: Setup Java
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: gradle
-
-      - name: Run fixed Gradle test command
-        run: ./gradlew --no-daemon test
-
-      - name: Run fixed Gradle build command
-        run: ./gradlew --no-daemon build
-
-      - name: Create digest-only build bundle
-        shell: bash
-        run: |
-          set -euo pipefail
-          jar_path="$(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-plain.jar' -print -quit)"
-          test -n "$jar_path"
-          jar_name="$(basename "$jar_path")"
-          jar_sha256="$(sha256sum "$jar_path" | awk '{print $1}')"
-          printf '%s  %s\n' "$jar_sha256" "$jar_name" > build/libs/"$jar_name".sha256
-          printf '{"schemaVersion":"fixture-build-bundle.1","jar":"%s","sha256":"%s","commands":["./gradlew --no-daemon test","./gradlew --no-daemon build"]}\n' \
-            "$jar_name" "$jar_sha256" > fixture-build-bundle.json
-
-      - name: Upload original research artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: fixture-build-output
-          path: |
-            fixture-build-bundle.json
-            build/libs/*.jar
-            build/libs/*.sha256
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Attest original digest bundle
-        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
-        with:
-          subject-path: fixture-build-bundle.json
+  attest:
+    uses: jyt6640/persona-harness/.github/workflows/persona-harness-project-finish.yml@cff4420cbc0d660babc16c8ab5aa82236233115d
