@@ -13,4 +13,4 @@ permissions:
 
 jobs:
   attest:
-    uses: jyt6640/persona-harness/.github/workflows/persona-harness-project-finish-context-diagnostic.yml@4590a505ad1dc0f9a0e639fb0fa31bb2950497f8
+    uses: jyt6640/persona-harness/.github/workflows/persona-harness-project-finish-context-diagnostic.yml@8a3d6b068ef61b47d9d734b9de8d24a91271388b
